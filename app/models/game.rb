@@ -29,8 +29,14 @@ class Game < ActiveRecord::Base
       result = Word.check(text)
       case result[:code]
       when :ok then
-        res << "じゃあわたしは・・・"
-        res << "「#{Word.answer(text)}」！"
+        ans = Word.answer(text)
+        case ans[:code]
+        when :ok then
+          res << "じゃあわたしは・・・"
+          res << "「#{ans[:text]}」！"
+        when :out then
+          res << "参りました。何も思いつかない"
+        end
       when :out then
         res << "はい〜、わたしの勝ち〜"
         res << "#{result[:msg]}"
@@ -40,8 +46,9 @@ class Game < ActiveRecord::Base
         res << "なんかおかしい、管理者に報告して！"
       end
     else
+      ans = Word.answer(nil)
       res << "じゃあわたしから"
-      res << "「#{Word.answer(nil)}」！"
+      res << "「#{ans[:text]}」！"
     end
 
     res.join("\n")

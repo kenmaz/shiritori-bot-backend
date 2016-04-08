@@ -23,13 +23,18 @@ class Word < ActiveRecord::Base
     return {:code => :ok}
   end
 
+  # @return [:code => (:ok|:out), :text => ".."]
   def self.answer(text)
     if text
       kana = text.tr('ァ-ン','ぁ-ん')
       ch = kana[-1]
-      return "なにか"
+      if word = Word.where("kana LIKE '#{ch}%'").take
+        return {:code => :ok, :text => word.kana}
+      else
+        return {:code => :out}
+      end
     else
-      return "オレオ"
+      return {:code => :ok, :text => "オレオ"}
     end
   end
 end
