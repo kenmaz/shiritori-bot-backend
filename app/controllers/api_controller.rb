@@ -14,6 +14,8 @@ class ApiController < ApplicationController
       content = result[:content]
       mid = content[:from]
       text = content[:text]
+      res_text = Game.process(mid, text)
+
       if event_type == '138311609100106403'
         # add as friend
       else
@@ -28,9 +30,6 @@ class ApiController < ApplicationController
 
       req = Net::HTTP::Post.new(uri.request_uri)
       req.add_field 'Content-Type', 'application/json; charser=UTF-8'
-      #req.add_field 'X-Line-ChannelID', '1461843529'
-      #req.add_field 'X-Line-ChannelSecret', 'a12b2f8ebf17b88f9810736bf78f7922'
-      #req.add_field 'X-Line-Trusted-User-With-ACL', 'uebe8f9b50f45343b74f92e6396db1d2b'
       req.add_field 'X-Line-ChannelID', APP_CONFIG["channel_id"]
       req.add_field 'X-Line-ChannelSecret', APP_CONFIG["channel_secret"]
       req.add_field 'X-Line-Trusted-User-With-ACL', APP_CONFIG["mid"]
@@ -42,7 +41,7 @@ class ApiController < ApplicationController
         "content" => {
           "contentType" => 1,
           "toType" => 1,
-          "text" => "Hello, Jose!"
+          "text" => res_text
         }
       }.to_json
       puts req.body = payload
@@ -52,6 +51,6 @@ class ApiController < ApplicationController
       }
       puts res.body
     end
-    render :text => "hello"
+    render :text => "ok"
   end
 end
