@@ -5,7 +5,9 @@ require 'uri'
 class ApiController < ApplicationController
   def callback
     puts json_txt = request.body.read
-    json = JSON.parse(request.body.read, {:symbolize_names => true})
+    logger.info json_txt
+
+    json = JSON.parse(json_txt, {:symbolize_names => true})
     puts results = json[:result]
     results.each do |result|
       event_type = result[:eventType]
