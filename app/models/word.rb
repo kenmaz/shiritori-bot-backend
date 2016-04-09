@@ -4,7 +4,23 @@ class Word < ActiveRecord::Base
 
   # @return [:code => :ok, :word => <word>]
   # @return [:code => (:out|:invalid), :msg => ".."]
-  def self.check(text)
+  def self.check(text, game)
+    res = register(text)
+    case res[:code]
+    when :ok
+      word = res[:word]
+
+      if game.words.include?(word)
+        return {:code => :out, :msg => "「#{word.value}」は既に言ったよ！！あなたの負け！"}
+      end
+
+      last_word = game.words.last
+      puts "last #{last_word}"
+    end
+    return res
+  end
+
+  def self.register(text)
     kana = text.tr('ァ-ン','ぁ-ん')
     unless /\p{hiragana}/.match(kana)
       return {:code => :invalid, :msg => "ひらがなorカタカナでお願いします"}

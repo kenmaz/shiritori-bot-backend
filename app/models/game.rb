@@ -5,24 +5,24 @@ class Game < ActiveRecord::Base
 
   def self.process(mid, text)
 
-    is_new_user = false
+    is_new_game = false
+
     unless user = User.where(mid: mid).take
       user = User.create(:mid => mid)
-      is_new_user = true
+      is_new_game = true
     end
 
-    is_new_game = false
-    unless game = Game.where(user_id: user.id).take
+    unless game = Game.where(user_id: user.id).where(end_date: nil).take
       game = Game.create(:user => user)
       is_new_game = true
     end
 
-    game.start_game(text, is_new_user)
+    game.start_game(text, is_new_game)
   end
 
-  def start_game(text, is_new_user)
+  def start_game(text, is_new_game)
     res = nil
-    if is_new_user || text == nil
+    if is_new_game || text == nil
       res = reply_first()
     else
       case text
@@ -49,7 +49,7 @@ class Game < ActiveRecord::Base
   end
 
   def check_and_save(text)
-    result = Word.check(text)
+    result = Word.check(text, self)
     case result[:code]
     when :ok
       word = result[:word]
@@ -83,14 +83,20 @@ class Game < ActiveRecord::Base
         res << "「#{word.value}」！"
       else
         res << "参りました。何も思いつかない"
+        finish
+        res << "もう一回やる？"
       end
     when :out
       res << "はい〜、わたしの勝ち〜"
       res << "#{result[:msg]}"
+      finish
+      res << "もう一回やる？"
     when :invalid
       res << "ちょっとちょっと、#{result[:msg]}"
     else
       res << "なんかおかしい、管理者に報告して！"
+      finish
+      res << "もう一回やる？"
     end
 
     return res
@@ -102,5 +108,10 @@ class Game < ActiveRecord::Base
       res << word.value
     end
     return res
+  end
+
+  def finish
+    self.end_date = DateTime.now
+    self.save!
   end
 end
