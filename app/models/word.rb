@@ -2,7 +2,8 @@ class Word < ActiveRecord::Base
   has_many :game_words
   has_many :games, through: :game_words
 
-  # @return [:code => (:ok|:out|:invalid), :msg => ".."]
+  # @return [:code => :ok, :word => <word>]
+  # @return [:code => (:out|:invalid), :msg => ".."]
   def self.check(text)
     kana = text.tr('ァ-ン','ぁ-ん')
     unless /\p{hiragana}/.match(kana)
@@ -16,25 +17,29 @@ class Word < ActiveRecord::Base
     if word = Word.where(kana: kana).take
       word.cnt += 1
     else
-      word = Word.new(kana: kana, cnt: 1)
+      word = Word.new(kana: kana, value: text, cnt: 1)
     end
     word.save!
 
-    return {:code => :ok}
+    return {:code => :ok, :word => word}
   end
 
-  # @return [:code => (:ok|:out), :text => ".."]
+  # @return [:code => :ok, :word => <word>]
+  # @return [:code => :out]
   def self.answer(text)
     if text
       kana = text.tr('ァ-ン','ぁ-ん')
       ch = kana[-1]
       if word = Word.where("kana LIKE '#{ch}%'").take
-        return {:code => :ok, :text => word.kana}
+        return {:code => :ok, :word => word}
       else
         return {:code => :out}
       end
     else
-      return {:code => :ok, :text => "オレオ"}
+      unless word = Word.take
+        word = Word.create!(kana: "おれお", value: "オレオ", cnt: 1)
+      end
+      return {:code => :ok, :word => word}
     end
   end
 end

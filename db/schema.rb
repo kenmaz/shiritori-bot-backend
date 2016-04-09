@@ -35,6 +35,7 @@ ActiveRecord::Schema.define(version: 20160408181844) do
   add_index "users", ["mid"], name: "index_users_on_mid", unique: true
 
   create_table "words", force: :cascade do |t|
+    t.string   "value",      null: false
     t.string   "kana",       null: false
     t.integer  "cnt",        null: false
     t.datetime "created_at", null: false
@@ -43,5 +44,6 @@ ActiveRecord::Schema.define(version: 20160408181844) do
 
   add_index "words", ["cnt"], name: "index_words_on_cnt"
   add_index "words", ["kana"], name: "index_words_on_kana", unique: true
+  add_index "words", ["value"], name: "index_words_on_value", unique: true
 
 end
