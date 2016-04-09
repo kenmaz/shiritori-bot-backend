@@ -14,8 +14,9 @@ class Word < ActiveRecord::Base
         return {:code => :out, :msg => "「#{word.value}」は既に言ったよ！！あなたの負け！"}
       end
 
-      last_word = game.words.last
-      puts "last #{last_word}"
+      if last_word = game.words.last
+        puts "last #{last_word.value}"
+      end
     end
     return res
   end

@@ -39,7 +39,7 @@ class Game < ActiveRecord::Base
     ans = Word.answer(text, self)
     case ans[:code]
     when :ok
-      puts word = ans[:word]
+      word = ans[:word]
       self.words << word
       self.save!
       return word
