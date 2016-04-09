@@ -36,10 +36,10 @@ class Game < ActiveRecord::Base
   end
 
   def answer_and_save(text)
-    ans = Word.answer(text)
+    ans = Word.answer(text, self)
     case ans[:code]
     when :ok
-      word = ans[:word]
+      puts word = ans[:word]
       self.words << word
       self.save!
       return word
@@ -52,7 +52,11 @@ class Game < ActiveRecord::Base
     result = Word.check(text)
     case result[:code]
     when :ok
-      self.words << result[:word]
+      word = result[:word]
+      if self.words.include?(word)
+        return {:code => :out, :msg => "「#{word.value}」は既に言ったよ！！あなたの負け！"}
+      end
+      self.words << word
       self.save!
     end
     result
