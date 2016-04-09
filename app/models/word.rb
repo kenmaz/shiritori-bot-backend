@@ -15,7 +15,11 @@ class Word < ActiveRecord::Base
     end
 
     if word = Word.where(kana: kana).take
-      word.cnt += 1
+      if self.words.include?(word)
+        return {:code => :out, :msg => "「#{word.value}」は既に言ったよ！！あなたの負け！"}
+      else
+        word.cnt += 1
+      end
     else
       word = Word.new(kana: kana, value: text, cnt: 1)
     end
@@ -27,19 +31,19 @@ class Word < ActiveRecord::Base
   # @return [:code => :ok, :word => <word>]
   # @return [:code => :out]
   def self.answer(text)
-    if text
-      kana = text.tr('ァ-ン','ぁ-ん')
-      ch = kana[-1]
-      if word = Word.where("kana LIKE '#{ch}%'").take
-        return {:code => :ok, :word => word}
-      else
-        return {:code => :out}
-      end
-    else
-      unless word = Word.take
-        word = Word.create!(kana: "おれお", value: "オレオ", cnt: 1)
-      end
-      return {:code => :ok, :word => word}
+    unless text
+      return {:code => :ok, :word => Word.take}
     end
+
+    kana = text.tr('ァ-ン','ぁ-ん')
+    ch = kana[-1]
+    cand_words = Word.where("kana LIKE '#{ch}%'")
+    cand_words.each do |cand_word|
+      unless self.words.include?(cand_word)
+        return {:code => :ok, :word => cand_word}
+      end
+    end
+
+    return {:code => :out}
   end
 end

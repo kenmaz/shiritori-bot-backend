@@ -97,5 +97,6 @@ class Game < ActiveRecord::Base
     self.words.each do |word|
       res << word.value
     end
+    return res
   end
 end
