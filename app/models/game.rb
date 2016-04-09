@@ -6,6 +6,11 @@ class Game < ActiveRecord::Base
   def self.process(mid, text)
     res = []
 
+    case text
+    when '/list'
+      return list(mid)
+    end
+
     is_new_user = false
     unless user = User.where(mid: mid).take
       user = User.create(:mid => mid)
@@ -54,4 +59,17 @@ class Game < ActiveRecord::Base
     res.join("\n")
   end
 
+  def list(mid)
+    unless user = User.where(mid: mid).take
+      return "no user #{mid}"
+    end
+    unless game = Game.where(user_id: user.id).take
+      return "no game #{mid}"
+    end
+    res = []
+    game.words.each do |word|
+      res << word.kana
+    end
+    res.join("\n")
+  end
 end
