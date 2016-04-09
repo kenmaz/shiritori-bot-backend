@@ -48,6 +48,16 @@ class Game < ActiveRecord::Base
     end
   end
 
+  def check_and_save(text)
+    result = Word.check(text)
+    case result[:code]
+    when :ok
+      self.words << result[:word]
+      self.save!
+    end
+    result
+  end
+
   def reply_first
     res = []
     res << "こんにちは"
@@ -59,20 +69,15 @@ class Game < ActiveRecord::Base
   end
 
   def reply(text)
-    res = []
-    res << "なるほど、「#{text}」ですか"
-    result = Word.check(text)
+    res = ["なるほど、「#{text}」ですか"]
+    result = check_and_save(text)
 
     case result[:code]
     when :ok
-      self.words << result[:word]
-      self.save!
-      ans = answer_and_save(text)
-      case ans[:code]
-      when :ok then
+      if word = answer_and_save(text)
         res << "じゃあわたしは・・・"
-        res << "「#{ans[:word].value}」！"
-      when :out
+        res << "「#{word.value}」！"
+      else
         res << "参りました。何も思いつかない"
       end
     when :out
