@@ -1,0 +1,19 @@
+ <html>
+ <script>
+ if (window.ApplePaySession) {
+   alert("support");
+    var merchantIdentifier = 'example.com.store';
+    var promise = ApplePaySession.canMakePaymentsWithActiveCard(merchantIdentifier);
+    promise.then(function (canMakePayments) {
+       if (canMakePayments) {
+         alert("ok");
+       } else {
+         alert("fial");
+       }
+    });_
+ } else {
+   alert("not support");
+ }
+ </script>
+ </html>
+
