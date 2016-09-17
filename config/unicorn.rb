@@ -1,5 +1,5 @@
 # ワーカーの数
-worker_processes 2
+worker_processes 1
 
 # ソケット
 app_dir = '/data/webapps/shiritori-bot-backend'
